@@ -10,7 +10,10 @@ import {
   Coins, 
   Flame, 
   ShieldCheck, 
-  Zap 
+  Zap,
+  Activity,
+  Code2,
+  Layers
 } from "lucide-react";
 
 interface Bounty {
@@ -28,28 +31,28 @@ export default function Home() {
   const [promptInput, setPromptInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"preview" | "json">("preview");
+  const [activeTab, setActiveTab] = useState<"generator" | "bounties" | "logs">("generator");
 
   const [bounties, setBounties] = useState<Bounty[]>([
     {
-      id: "bounty-101",
-      title: "Build Responsive Hero Section for Superteam NP",
-      description: "Implement a dark-themed, mobile-first hero section using Tailwind CSS and Next.js.",
-      rewardSol: 1.5,
+      id: "act_sol99x2",
+      title: "Fix Navigation Hydration Bug in Next.js",
+      description: "Resolve client-server DOM mismatch on mobile drawer component in repo /solana-dapp.",
+      rewardSol: 0.5,
       difficulty: "Intermediate",
-      tags: ["Next.js", "Tailwind", "Frontend"],
+      tags: ["Next.js", "React", "TypeScript"],
       status: "Open",
-      createdAt: "Just now",
+      createdAt: "2m ago",
     },
     {
-      id: "bounty-102",
-      title: "Integrate Solana Wallet Adapter with Auto-Disconnect",
-      description: "Hook up Phantom/Solflare adapter with clean state fallback and balance checker.",
-      rewardSol: 0.8,
-      difficulty: "Beginner",
-      tags: ["Solana Web3", "React"],
+      id: "act_sol88y1",
+      title: "Optimize Anchor Escrow State Validation",
+      description: "Audit and patch state check vulnerabilities in Solana escrow smart contract.",
+      rewardSol: 2.0,
+      difficulty: "Advanced",
+      tags: ["Rust", "Anchor", "Security"],
       status: "Open",
-      createdAt: "10 mins ago",
+      createdAt: "15m ago",
     }
   ]);
 
@@ -64,13 +67,13 @@ export default function Home() {
       const rewardSol = rewardMatch ? parseFloat(rewardMatch[1]) : 1.0;
 
       const difficulty: "Beginner" | "Intermediate" | "Advanced" = 
-        promptInput.toLowerCase().includes("hard") || promptInput.toLowerCase().includes("advanced") ? "Advanced" :
+        promptInput.toLowerCase().includes("hard") || promptInput.toLowerCase().includes("security") ? "Advanced" :
         promptInput.toLowerCase().includes("easy") || promptInput.toLowerCase().includes("simple") ? "Beginner" : "Intermediate";
 
       const newBounty: Bounty = {
-        id: `bounty-${Date.now().toString().slice(-4)}`,
-        title: promptInput.length > 55 ? promptInput.slice(0, 52) + "..." : promptInput,
-        description: `Automated agent bounty: "${promptInput}". Submissions must link a public GitHub repository.`,
+        id: `act_${Math.random().toString(36).substring(2, 9)}`,
+        title: promptInput.length > 45 ? promptInput.slice(0, 42) + "..." : promptInput,
+        description: `Autonomous agent execution target: "${promptInput}". Submissions require cryptographic PR verification.`,
         rewardSol,
         difficulty,
         tags: ["Solana", "AI-Agent", difficulty],
@@ -82,41 +85,13 @@ export default function Home() {
       setSelectedBounty(newBounty);
       setPromptInput("");
       setIsGenerating(false);
-    }, 600);
+    }, 700);
   };
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const generateActionJson = (bounty: Bounty) => {
-    return JSON.stringify({
-      icon: "https://solana.com/src/img/branding/solanaLogoMark.svg",
-      title: bounty.title,
-      description: bounty.description,
-      label: `Claim Bounty (${bounty.rewardSol} SOL)`,
-      links: {
-        actions: [
-          {
-            label: "Claim Task",
-            href: `/api/actions/claim?bountyId=${bounty.id}`,
-          },
-          {
-            label: "Submit PR",
-            href: `/api/actions/submit?bountyId=${bounty.id}&githubUrl={githubUrl}`,
-            parameters: [
-              {
-                name: "githubUrl",
-                label: "GitHub Repository or PR URL",
-                required: true,
-              }
-            ]
-          }
-        ]
-      }
-    }, null, 2);
   };
 
   return (
@@ -128,199 +103,224 @@ export default function Home() {
               <Zap className="h-4 w-4" />
             </div>
             <div>
-              <span className="font-bold text-white tracking-tight">BountyAgent</span>
-              <span className="ml-2 text-xs uppercase tracking-wider text-emerald-400 font-mono font-semibold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">Solana Blinks</span>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-white tracking-wider text-sm">BOUNTYAGENT</span>
+                <span className="text-[10px] font-mono font-semibold bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-900/50">AI + BLINKS</span>
+              </div>
+              <p className="text-[10px] text-zinc-500 tracking-tight">Autonomous Social Micro-Bounties on Solana</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-1 bg-zinc-950 border border-zinc-900 p-1 rounded-xl">
+            <button 
+              onClick={() => setActiveTab("generator")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeTab === "generator" ? "bg-emerald-500 text-black font-semibold" : "text-zinc-400 hover:text-white"}`}
+            >
+              <Sparkles className="h-3.5 w-3.5" /> AI Generator
+            </button>
+            <button 
+              onClick={() => setActiveTab("bounties")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeTab === "bounties" ? "bg-emerald-500 text-black font-semibold" : "text-zinc-400 hover:text-white"}`}
+            >
+              <Layers className="h-3.5 w-3.5" /> Active Bounties <span className="ml-1 px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">{bounties.length}</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab("logs")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeTab === "logs" ? "bg-emerald-500 text-black font-semibold" : "text-zinc-400 hover:text-white"}`}
+            >
+              <Activity className="h-3.5 w-3.5" /> Agent Logs
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-zinc-900 bg-zinc-950 text-xs font-mono text-zinc-400">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Devnet Active
+              Solana Devnet
             </div>
-            <button className="bg-zinc-100 hover:bg-white text-black text-xs font-semibold px-4 py-2 rounded-lg transition-all shadow-sm cursor-pointer">
-              Connect Wallet
-            </button>
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         <section className="lg:col-span-7 space-y-6">
-          <div className="border border-zinc-900 bg-zinc-950/80 rounded-xl p-6 shadow-2xl relative overflow-hidden">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="border border-zinc-900 bg-zinc-950/80 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="flex items-center gap-2 mb-2">
               <Sparkles className="h-4 w-4 text-emerald-400" />
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-300">Prompt Agent to Deploy Bounty</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-300 font-mono">AI Prompt Task Synthesizer</h2>
             </div>
-            <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
-              Describe what task you want completed and reward amount. The agent compiles it into an interactive Solana Action (Blink).
+            <p className="text-xs text-zinc-500 mb-5 leading-relaxed">
+              Describe any engineering task in natural language. Our agent will parse parameters & build a Solana Blink.
             </p>
 
-            <div className="relative">
-              <textarea
-                value={promptInput}
-                onChange={(e) => setPromptInput(e.target.value)}
-                placeholder="e.g., Fix bug in Solana Anchor staking contract, reward 2.5 SOL..."
-                rows={3}
-                className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all resize-none"
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] uppercase font-mono text-zinc-400 mb-2">Task Prompt / Instruction</label>
+                <textarea
+                  value={promptInput}
+                  onChange={(e) => setPromptInput(e.target.value)}
+                  placeholder="e.g., Fix the responsive layout bug in Next.js navbar repo, reward 0.5 SOL..."
+                  rows={3}
+                  className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all resize-none font-mono"
+                />
+              </div>
+
               <button
                 onClick={handleGenerateBounty}
                 disabled={isGenerating || !promptInput.trim()}
-                className="mt-3 w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 text-black font-semibold text-xs py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 text-black font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-500/10"
               >
                 {isGenerating ? (
                   <>
                     <Terminal className="h-4 w-4 animate-spin" />
-                    <span>Compiling Blink Specification...</span>
+                    <span>Synthesizing Agent Spec & Action Payload...</span>
                   </>
                 ) : (
                   <>
                     <Send className="h-4 w-4" />
-                    <span>Generate & Deploy Blink</span>
+                    <span>Generate with AI</span>
                   </>
                 )}
               </button>
+
+              <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+                <span className="text-[10px] font-mono text-zinc-600 uppercase">Try prompts:</span>
+                <button onClick={() => setPromptInput("Fix Navbar bug in NextJS repo, reward 0.5 SOL")} className="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 px-2 py-1 rounded border border-zinc-800 text-[11px] cursor-pointer">
+                  Fix Navbar bug in NextJS repo
+                </button>
+                <button onClick={() => setPromptInput("Optimize Rust smart contract state checks, reward 1.8 SOL")} className="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 px-2 py-1 rounded border border-zinc-800 text-[11px] cursor-pointer">
+                  Optimize Rust smart contract
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="border border-zinc-900 bg-zinc-950/80 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-zinc-300">Live Agent Bounties</h3>
-              <span className="text-xs font-mono text-zinc-500">{bounties.length} available</span>
+          <div className="border border-zinc-900 bg-zinc-950/80 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-900">
+              <div className="flex items-center gap-2">
+                <Code2 className="h-4 w-4 text-emerald-400" />
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-300 font-mono">Parsed Bounty Schema</h3>
+              </div>
+              <span className="text-[10px] font-mono bg-emerald-950/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-900/40">Ready for Blink Export</span>
             </div>
 
-            <div className="space-y-3">
-              {bounties.map((bounty) => (
-                <div 
-                  key={bounty.id}
-                  onClick={() => setSelectedBounty(bounty)}
-                  className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                    selectedBounty.id === bounty.id 
-                      ? "border-emerald-500/40 bg-zinc-900/60" 
-                      : "border-zinc-900 bg-black hover:border-zinc-800"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h4 className="text-sm font-medium text-zinc-200 leading-snug">{bounty.title}</h4>
-                      <p className="text-xs text-zinc-500 mt-1 line-clamp-1">{bounty.description}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-emerald-400 bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-900/30">
-                        <Coins className="h-3 w-3" />
-                        {bounty.rewardSol} SOL
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-2">
-                    <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">
-                      {bounty.difficulty}
-                    </span>
-                    {bounty.tags.map((tag) => (
-                      <span key={tag} className="text-[10px] text-zinc-500 font-mono">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-mono text-zinc-500 mb-1">Bounty Title</label>
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={selectedBounty.title} 
+                  className="w-full bg-black border border-zinc-900 rounded-lg px-3 py-2 text-xs text-zinc-300 font-mono" 
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-mono text-zinc-500 mb-1">Reward (SOL)</label>
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={`${selectedBounty.rewardSol} SOL`} 
+                  className="w-full bg-black border border-zinc-900 rounded-lg px-3 py-2 text-xs text-emerald-400 font-mono font-bold" 
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-[10px] font-mono text-zinc-500 mb-1">Task Specification</label>
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={selectedBounty.description} 
+                  className="w-full bg-black border border-zinc-900 rounded-lg px-3 py-2 text-xs text-zinc-300 font-mono" 
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-mono text-zinc-500 mb-1">Difficulty</label>
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={selectedBounty.difficulty} 
+                  className="w-full bg-black border border-zinc-900 rounded-lg px-3 py-2 text-xs text-zinc-300 font-mono uppercase" 
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-mono text-zinc-500 mb-1">Tags (comma separated)</label>
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={selectedBounty.tags.join(", ")} 
+                  className="w-full bg-black border border-zinc-900 rounded-lg px-3 py-2 text-xs text-zinc-300 font-mono" 
+                />
+              </div>
             </div>
           </div>
         </section>
 
         <section className="lg:col-span-5 space-y-6">
-          <div className="border border-zinc-900 bg-zinc-950/80 rounded-xl p-6">
+          <div className="border border-zinc-900 bg-zinc-950/80 rounded-2xl p-6">
             <div className="flex items-center justify-between pb-4 border-b border-zinc-900 mb-6">
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setActiveTab("preview")}
-                  className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    activeTab === "preview" 
-                      ? "bg-zinc-800 text-white" 
-                      : "text-zinc-500 hover:text-zinc-300"
-                  }`}
-                >
-                  Blink Social View
-                </button>
-                <button
-                  onClick={() => setActiveTab("json")}
-                  className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    activeTab === "json" 
-                      ? "bg-zinc-800 text-white" 
-                      : "text-zinc-500 hover:text-zinc-300"
-                  }`}
-                >
-                  Actions Spec (JSON)
-                </button>
-              </div>
-
-              <span className="text-[11px] font-mono text-zinc-500 flex items-center gap-1">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /> Dialect Spec
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-300 font-mono">Social Action Container</span>
+              <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-900/30">
+                Live Solana Blink Preview
               </span>
             </div>
 
-            {activeTab === "preview" ? (
-              <div className="border border-zinc-800 bg-black rounded-xl overflow-hidden shadow-2xl">
-                <div className="h-32 bg-gradient-to-tr from-emerald-950 via-zinc-900 to-black p-4 flex flex-col justify-between border-b border-zinc-800/80">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono bg-black/60 backdrop-blur-md px-2 py-0.5 rounded text-zinc-400 border border-zinc-700/40">
-                      solana.action.v1
-                    </span>
-                    <Flame className="h-4 w-4 text-emerald-400" />
-                  </div>
-                  <div className="text-xl font-bold text-white tracking-tight">
-                    {selectedBounty.rewardSol} SOL Reward
-                  </div>
+            <div className="border border-zinc-800 bg-black rounded-xl overflow-hidden shadow-2xl">
+              <div className="h-32 bg-gradient-to-tr from-emerald-950 via-zinc-900 to-black p-4 flex flex-col justify-between border-b border-zinc-800/80">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono bg-black/60 backdrop-blur-md px-2 py-0.5 rounded text-zinc-400 border border-zinc-700/40 flex items-center gap-1">
+                    <ShieldCheck className="h-3 w-3 text-emerald-400" /> Verified Protocol
+                  </span>
+                  <Flame className="h-4 w-4 text-emerald-400" />
                 </div>
-
-                <div className="p-4 space-y-3">
-                  <h4 className="text-sm font-semibold text-white">{selectedBounty.title}</h4>
-                  <p className="text-xs text-zinc-400 leading-relaxed">{selectedBounty.description}</p>
-
-                  <div className="pt-2 space-y-2">
-                    <button 
-                      onClick={() => alert(`Simulated devnet interaction: Claimed "${selectedBounty.title}"!`)}
-                      className="w-full bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold py-2.5 rounded-lg transition-all cursor-pointer"
-                    >
-                      Claim Bounty ({selectedBounty.rewardSol} SOL)
-                    </button>
-                    <button 
-                      onClick={() => {
-                        const pr = prompt("Enter your GitHub PR URL:");
-                        if (pr) alert(`PR Submitted for review: ${pr}`);
-                      }}
-                      className="w-full bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 text-xs font-medium py-2 rounded-lg transition-all cursor-pointer"
-                    >
-                      Submit Pull Request
-                    </button>
-                  </div>
+                <div className="text-xl font-bold text-white tracking-tight font-mono">
+                  {selectedBounty.rewardSol} SOL Reward
                 </div>
+              </div>
 
-                <div className="px-4 py-2.5 bg-zinc-950 border-t border-zinc-900 flex items-center justify-between text-[11px] text-zinc-500">
-                  <span>bountyagent.app/actions/{selectedBounty.id}</span>
+              <div className="p-4 space-y-3">
+                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-zinc-900 text-emerald-400 border border-zinc-800">
+                  {selectedBounty.difficulty.toUpperCase()} TIER
+                </span>
+                <h4 className="text-sm font-bold text-white leading-snug">{selectedBounty.title}</h4>
+                <p className="text-xs text-zinc-400 leading-relaxed">{selectedBounty.description}</p>
+
+                <div className="pt-2 space-y-2.5">
                   <button 
-                    onClick={() => copyToClipboard(`https://bountyagent.app/actions/${selectedBounty.id}`, selectedBounty.id)}
-                    className="hover:text-zinc-300 cursor-pointer"
+                    onClick={() => alert(`Simulated Devnet execution: Accepted & claimed "${selectedBounty.title}"!`)}
+                    className="w-full bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold py-3 rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2"
                   >
-                    {copiedId === selectedBounty.id ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                    <Coins className="h-4 w-4" /> Accept & Claim Task ({selectedBounty.rewardSol} SOL)
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const pr = prompt("Enter your GitHub PR URL for validation:");
+                      if (pr) alert(`PR verified against repository: ${pr}`);
+                    }}
+                    className="w-full bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 text-xs font-medium py-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    Submit Pull Request
                   </button>
                 </div>
               </div>
-            ) : (
-              <div className="relative">
-                <pre className="text-[11px] font-mono bg-black p-4 rounded-lg border border-zinc-900 text-emerald-400/90 overflow-x-auto max-h-[360px]">
-                  {generateActionJson(selectedBounty)}
-                </pre>
-                <button
-                  onClick={() => copyToClipboard(generateActionJson(selectedBounty), "json-spec")}
-                  className="absolute top-3 right-3 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 p-1.5 rounded text-zinc-400 hover:text-white cursor-pointer"
-                >
-                  {copiedId === "json-spec" ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-                </button>
+
+              <div className="px-4 py-3 bg-zinc-950 border-t border-zinc-900 flex items-center justify-between text-[11px] text-zinc-500 font-mono">
+                <span>Action ID: {selectedBounty.id}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] text-zinc-600">Powered by Solana Actions</span>
+                  <button 
+                    onClick={() => copyToClipboard(`https://bountyagent.app/actions/${selectedBounty.id}`, selectedBounty.id)}
+                    className="hover:text-white cursor-pointer flex items-center gap-1"
+                  >
+                    {copiedId === selectedBounty.id ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                    <span>Copy Blink</span>
+                  </button>
+                </div>
               </div>
-            )}
+            </div>
+
+            <div className="mt-4 p-3 bg-zinc-950 rounded-xl border border-zinc-900 text-[11px] text-zinc-500 leading-normal font-mono">
+              <span className="text-emerald-400 font-semibold">ℹ️ Note:</span> This Blink URL can be embedded directly into any platform supporting Solana Actions. Users escrow deposits instantly without navigating away from their feed.
+            </div>
           </div>
         </section>
       </div>
